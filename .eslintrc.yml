@@ -1,0 +1,72 @@
+root: true
+extends:
+- "@sethb0/mfllc"
+- "plugin:vue/strongly-recommended"
+parserOptions:
+  parser: babel-eslint
+  ecmaVersion: 2018
+  ecmaFeatures:
+    jsx: false
+  sourceType: module
+plugins:
+- babel
+- vue
+env:
+  es6: true
+  node: true
+rules:
+  object-curly-newline:
+  - warn
+  - ObjectExpression:
+      consistent: true
+      multiline: true
+      minProperties: 4
+    ObjectPattern: never
+    ImportDeclaration: never
+    ExportDeclaration: never
+  require-await: off
+
+  vue/html-indent:
+  - warn
+  - 2
+  - alignAttributesVertically: false
+  vue/html-self-closing:
+  - warn
+  - html:
+      void: never
+      normal: never
+      component: never
+    svg: always
+    math: always
+  vue/max-attributes-per-line: off
+  vue/require-default-prop: warn
+  vue/return-in-computed-property: warn
+
+  new-cap: off
+  babel/new-cap: warn
+  no-invalid-this: off
+  babel/no-invalid-this: warn
+  object-curly-spacing: off
+  babel/object-curly-spacing:
+  - warn
+  - always
+  quotes: off
+  babel/quotes:
+  - warn
+  - single
+  - avoidEscape: true
+  semi: off
+  babel/semi: error
+  no-unused-expressions: off
+  babel/no-unused-expressions: warn
+  valid-typeof: off
+  babel/valid-typeof: warn
+overrides:
+- files: "**/*.spec.js"
+  env:
+    mocha: true
+  rules:
+    func-names: off
+    babel/no-invalid-this: off
+    babel/no-unused-expressions: off
+    prefer-arrow-callback: off

@@ -4,7 +4,8 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </div>
-    <router-view/>
+    <h1><fa-i icon="spinner" fixed-width spin></fa-i></h1>
+    <router-view></router-view>
   </div>
 </template>
 
