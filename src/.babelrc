@@ -1,15 +1,6 @@
 {
   "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "targets": {
-          "node": "current"
-        },
-        "loose": true,
-        "useBuiltIns": "usage"
-      }
-    ]
+    "@vue/app"
   ],
   "plugins": [
     "@babel/plugin-proposal-function-bind",
@@ -27,5 +18,5 @@
       }
     ]
   ],
-  "sourceMaps": false
+  "sourceMaps": "inline"
 }
