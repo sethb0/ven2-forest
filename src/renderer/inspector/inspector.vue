@@ -36,16 +36,18 @@ export default {
         const v = m && m[2];
         for (const charm of this.charms) {
           if (charm.id === id) {
-            let variant;
-            if (v && charm.variants) {
-              for (const vart of charm.variants) {
-                if (v === vart.id) {
-                  variant = vart;
-                  break;
+            if (charm.type !== 'proxy') {
+              let variant;
+              if (v && charm.variants) {
+                for (const vart of charm.variants) {
+                  if (v === vart.id) {
+                    variant = vart;
+                    break;
+                  }
                 }
               }
+              this.markdown = formatDescription(charm, variant);
             }
-            this.markdown = formatDescription(charm, variant);
             break;
           }
         }

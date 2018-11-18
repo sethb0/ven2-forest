@@ -10,7 +10,6 @@
 
 <style>
 .brand-font { font-family: 'Pterra', fantasy }
-body { overflow: hidden; }
 </style>
 
 <script>
