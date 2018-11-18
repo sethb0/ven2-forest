@@ -1,5 +1,6 @@
 node_modules
 /dist
+/public/*.render.js
 
 # local env files
 .env.local
