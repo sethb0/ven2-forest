@@ -12,7 +12,7 @@ import svgPanZoom from 'svg-pan-zoom';
 
 const MIN_ZOOM = 0.02;
 
-let annotatedElement;
+let postprocessedElement;
 let panZoom;
 
 export default {
@@ -29,16 +29,16 @@ export default {
   watch: {
     svgElement (newValue) {
       const parent = document.getElementById('visualizer');
-      if (annotatedElement) {
+      if (postprocessedElement) {
         if (panZoom) {
           panZoom.destroy();
         }
-        parent.removeChild(annotatedElement);
+        parent.removeChild(postprocessedElement);
       }
       if (newValue) {
-        annotatedElement = annotate(newValue, (evt) => ::this.onClick(evt));
-        parent.appendChild(annotatedElement);
-        panZoom = svgPanZoom(annotatedElement, {
+        postprocessedElement = postprocess(newValue, (evt) => ::this.onClick(evt));
+        parent.appendChild(postprocessedElement);
+        panZoom = svgPanZoom(postprocessedElement, {
           dblClickZoomEnabled: false,
           minZoom: MIN_ZOOM,
           maxZoom: 1,
@@ -47,14 +47,14 @@ export default {
         });
         panZoom.zoomAtPoint(MIN_ZOOM, { x: 0, y: 0 });
       } else {
-        annotatedElement = null;
+        postprocessedElement = null;
         panZoom = null;
       }
     },
   },
 };
 
-function annotate (svg, handler) {
+function postprocess (svg, handler) {
   svg.getElementById('a_graph0').remove();
   for (const el of svg.querySelectorAll('title')) {
     el.remove();
