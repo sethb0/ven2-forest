@@ -8,6 +8,7 @@ Needs Node.js v10 or later. Not tested on anything but a Mac. Will probably work
 
 1.  Clone the repo.
 1.  `npm install`
+1.  Copy `lite.render.js` from `node_modules/viz.js` to `public`. The build toolchain does not make this easy to do automatically.
 1.  `npm run electron:build`
 1.  The installation package will be in the `dist_electron` subdirectory. As configured, that will be a MacOS `.dmg` file.
 
