@@ -10,7 +10,7 @@
 
 <style>
 .brand-font { font-family: 'Pterra', fantasy }
-#app { overflow: hidden; }
+body { overflow: hidden; }
 </style>
 
 <script>

@@ -10,6 +10,7 @@
 #inspector {
   background-color: floralwhite;
   overflow-y: scroll;
+  overscroll-behavior: contain;
 }
 #inspector .markdown-body {
   padding: 10px 15px;
