@@ -1,15 +1,35 @@
 /* eslint no-process-env: off */
-import { app, protocol, BrowserWindow } from 'electron';
+import { app, dialog, protocol, BrowserWindow } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
+
+import { connectAtStartup, disconnect } from './db';
+import { init as ipcInit, send } from './ipc';
+import { installMenu } from './menu';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV !== 'production';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+let toolsWin;
 
 // Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes(['app'], { secure: true });
+
+ipcInit(
+  (e) => {
+    dialog.showMessageBox(win, {
+      type: 'error',
+      buttons: ['OK'],
+      defaultId: 0,
+      message: e.message,
+    });
+  }
+);
+
+app.on('quit', () => {
+  disconnect();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -36,6 +56,20 @@ app.on('ready', async () => {
     // Install Vue Devtools
     await installVueDevtools();
   }
+  installMenu({
+    reload () {
+      send(win, 'userReload');
+    },
+    resetZoom () {
+      send(win, 'userResetZoom');
+    },
+    zoomIn () {
+      send(win, 'userZoomIn');
+    },
+    zoomOut () {
+      send(win, 'userZoomOut');
+    },
+  });
   createWindow();
 });
 
@@ -56,13 +90,21 @@ if (IS_DEVELOPMENT) {
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({ width: 1400, height: 900 });
+  win = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    minWidth: 700,
+    minHeight: 200,
+    webPreferences: { defaultEncoding: 'UTF-8' },
+  });
 
   if (IS_DEVELOPMENT) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
     if (!process.env.IS_TEST) {
-      win.webContents.openDevTools();
+      toolsWin = new BrowserWindow({ center: false });
+      win.webContents.setDevToolsWebContents(toolsWin.webContents);
+      win.webContents.openDevTools({ mode: 'detach' });
     }
   } else {
     createProtocol('app');
@@ -70,7 +112,22 @@ function createWindow () {
     win.loadFile('index.html');
   }
 
+  win.once('show', async () => {
+    try {
+      const collections = await connectAtStartup();
+      if (collections) {
+        win.webContents.send('connected', { collections });
+      }
+    } catch (e) {
+      // IGNORE
+    }
+  });
+
   win.on('closed', () => {
     win = null;
+    if (toolsWin) {
+      toolsWin.destroy();
+      toolsWin = null;
+    }
   });
 }

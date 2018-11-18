@@ -26,6 +26,7 @@ rules:
     ExportDeclaration: never
   require-await: off
 
+  vue/html-closing-bracket-newline: warn
   vue/html-indent:
   - warn
   - 2
@@ -39,8 +40,10 @@ rules:
     svg: always
     math: always
   vue/max-attributes-per-line: off
+  vue/no-unused-components: warn
   vue/require-default-prop: warn
   vue/return-in-computed-property: warn
+  vue/valid-v-for: warn
 
   new-cap: off
   babel/new-cap: warn
@@ -62,6 +65,13 @@ rules:
   valid-typeof: off
   babel/valid-typeof: warn
 overrides:
+- files: src/**
+  globals:
+    __static: false
+- files: web-worker.js
+  env:
+    node: false
+    worker: true
 - files: "**/*.spec.js"
   env:
     mocha: true

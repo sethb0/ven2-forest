@@ -1,6 +1,15 @@
 {
   "presets": [
-    "@vue/app"
+    [
+      "@vue/app",
+      {
+        "targets": {
+          "node": 10
+        },
+        "jsx": false,
+        "loose": true
+      }
+    ]
   ],
   "plugins": [
     "@babel/plugin-proposal-function-bind",
@@ -16,8 +25,7 @@
       {
         "loose": true
       }
-    ],
-    "babel-plugin-dynamic-import-node"
+    ]
   ],
-  "sourceMaps": "inline"
+  "sourceMaps": false
 }
