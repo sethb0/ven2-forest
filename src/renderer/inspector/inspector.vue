@@ -14,8 +14,10 @@
 }
 #inspector .markdown-body {
   padding: 10px 15px;
-  font-family: 'Source Sans Pro', sans-serif;
   font-size: 10pt;
+}
+#inspector .markdown-body, #inspector .markdown-body * {
+  font-family: 'Source Sans Pro', sans-serif;
   color: #6b4423; /* kobicha */
 }
 </style>
