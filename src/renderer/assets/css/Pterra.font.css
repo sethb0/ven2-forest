@@ -1,0 +1,27 @@
+/**
+ * @license
+ * MyFonts Webfont Build ID 3580161, 2018-05-14T15:06:26-0400
+ *
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are
+ * explicitly restricted from using the Licensed Webfonts(s).
+ *
+ * You may obtain a valid license at the URLs below.
+ *
+ * Webfont: Pterra by T-26
+ * URL: https://www.myfonts.com/fonts/t26/pterra/pterra/
+ * Copyright: (r) (c) 1996 [T‐26] Chicago www.t26.com 773.862.1201 T0333 ID#5121664 designer: Margo Chase / Gravy
+ * Licensed pageviews: 10,000
+ *
+ *
+ * License: https://www.myfonts.com/viewlicense?type=web&buildid=3580161
+ *
+ * © 2018 MyFonts Inc
+*/
+
+
+/* @import must be at top of file, otherwise CSS will not work */
+/* @import url("//hello.myfonts.net/count/36a101"); // doesn't work with webpack */
+
+
+@font-face {font-family: 'Pterra';src: url('../fonts/36A101_0_0.eot');src: url('../fonts/36A101_0_0.eot?#iefix') format('embedded-opentype'),url('../fonts/36A101_0_0.woff2') format('woff2'),url('../fonts/36A101_0_0.woff') format('woff'),url('../fonts/36A101_0_0.ttf') format('truetype');}
