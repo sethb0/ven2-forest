@@ -83,7 +83,7 @@ function formatDescription (charm, variant) {
   const minTraits = p?.traits || {};
   const minima = [`Essence ${minEssence}`];
   for (const [k, v] of Object.entries(minTraits)) {
-    minima.push(`${k}: ${v}`);
+    minima.push(`${k} ${v}`);
   }
   const keywords = Object.entries(charm.keywords || {}).map(([k, v]) => {
     if (v === true) {
