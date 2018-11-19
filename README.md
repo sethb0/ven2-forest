@@ -4,7 +4,7 @@ _Exalted_ 2.5e Charm tree visualization on the desktop
 
 ## Building
 
-Needs Node.js v10 or later. Not tested on anything but a Mac. Will probably work on Windows or Linux though, with minor mods to `vue.config.js`. Send a PR if you get it working, please!
+Needs Node.js v10 or later. Not tested on anything but a Mac. ~~Will probably work on Windows or Linux though, with minor mods to `vue.config.js`~~ Windows crashes horribly in `npm install`, still don't know about Linux. Send a PR if you get it working, please!
 
 1.  Clone the repo.
 1.  `npm install`
