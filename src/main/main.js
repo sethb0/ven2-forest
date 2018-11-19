@@ -16,6 +16,11 @@ let toolsWin;
 // Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes(['app'], { secure: true });
 
+// Windows thingy I don't understand but electron-builder doco recommends it
+// (hurrah for cargo-cult programming!)
+// must match appId from vue.config.js
+app.setAppUserModelId('ws.sharpcla.venator.forest');
+
 ipcInit(
   (e) => {
     dialog.showMessageBox(win, {

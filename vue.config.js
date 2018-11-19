@@ -43,6 +43,10 @@ module.exports = {
             NSRequiresAquaSystemAppearance: false,
           },
         },
+        win: {
+          target: 'nsis',
+          icon: './logo.ico',
+        },
       },
     },
   },
