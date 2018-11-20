@@ -15,18 +15,6 @@ export function installMenu (/* handlers */) {
         { role: 'selectall' },
       ],
     },
-    // {
-    //   label: 'View',
-    //   submenu: [
-    //     { label: 'Reload', accelerator: 'CommandOrControl+R', click: handlers.reload },
-    //     { type: 'separator' },
-    //     {label: 'Actual Size', accelerator: 'CommandOrControl+0', click: handlers.resetZoom},
-    //     { label: 'Zoom In', accelerator: 'CommandOrControl+Plus', click: handlers.zoomIn },
-    //     { label: 'Zoom Out', accelerator: 'CommandOrControl+-', click: handlers.zoomOut },
-    //     { type: 'separator' },
-    //     { role: 'togglefullscreen' },
-    //   ],
-    // },
     {
       role: 'window',
       submenu: [

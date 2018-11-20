@@ -2,8 +2,7 @@
 import { app, dialog, protocol, BrowserWindow } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 
-import { connectAtStartup, disconnect } from './db';
-import { init as ipcInit, send } from './ipc';
+import { connectAtStartup, disconnect, initIpc } from './db';
 import { installMenu } from './menu';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV !== 'production';
@@ -21,7 +20,7 @@ protocol.registerStandardSchemes(['app'], { secure: true });
 // must match appId from vue.config.js
 app.setAppUserModelId('ws.sharpcla.venator.forest');
 
-ipcInit(
+initIpc(
   (e) => {
     dialog.showMessageBox(win, {
       type: 'error',
@@ -61,20 +60,7 @@ app.on('ready', async () => {
     // Install Vue Devtools
     await installVueDevtools();
   }
-  installMenu({
-    reload () {
-      send(win, 'userReload');
-    },
-    resetZoom () {
-      send(win, 'userResetZoom');
-    },
-    zoomIn () {
-      send(win, 'userZoomIn');
-    },
-    zoomOut () {
-      send(win, 'userZoomOut');
-    },
-  });
+  installMenu();
   createWindow();
 });
 
