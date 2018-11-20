@@ -11,7 +11,7 @@ const COLOR_SETS = {
   Sidereal: { charmColor: 'plum', clusterColor: 'mediumpurple' },
   Solar: { charmColor: 'gold', clusterColor: 'goldenrod' },
   'Terrestrial Martial Arts': { charmColor: 'indianred', clusterColor: 'rosybrown' },
-  'Celestial Martial Arts': { charmColor: 'thistle', clusterColor: 'lightsteelblue' },
+  'Celestial Martial Arts': { charmColor: 'lightsteelblue', clusterColor: 'thistle' },
   'Sidereal Martial Arts': { charmColor: 'plum', clusterColor: 'mediumpurple' },
 };
 
