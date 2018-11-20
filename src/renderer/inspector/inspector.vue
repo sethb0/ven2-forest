@@ -7,8 +7,17 @@
 </template>
 
 <style>
+:root, [data-theme] [data-theme^="light"] {
+  --inspector-background: floralwhite;
+  --inspector-text: #6b4423; /* kobicha */
+}
+[data-theme^="dark"], [data-theme] [data-theme^="dark"] {
+  --inspector-background: #332c22;
+  --inspector-text: antiquewhite;
+}
+
 #inspector {
-  background-color: floralwhite;
+  background-color: var(--inspector-background);
   overflow-y: scroll;
   overscroll-behavior: contain;
 }
@@ -18,7 +27,7 @@
 }
 #inspector .markdown-body, #inspector .markdown-body * {
   font-family: 'Source Sans Pro', sans-serif;
-  color: #6b4423; /* kobicha */
+  color: var(--inspector-text);
 }
 #inspector .markdown-body strong {
   font-weight: 800;

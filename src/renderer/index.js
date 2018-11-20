@@ -1,7 +1,7 @@
 import '@vuikit/theme';
 import 'vue-simple-markdown/dist/vue-simple-markdown.css';
 
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import Vue from 'vue/dist/vue.runtime.esm';
 import VueSimpleMarkdown from 'vue-simple-markdown';
 import { mapState } from 'vuex/dist/vuex.esm';
@@ -13,6 +13,15 @@ import { initWorkers } from './workers';
 Vue.use(VueSimpleMarkdown);
 
 let requestTimer = 0;
+const { systemPreferences } = remote;
+
+if (process.platform === 'darwin') {
+  systemPreferences.subscribeNotification(
+    'AppleInterfaceThemeChangedNotification',
+    setOSTheme
+  );
+  setOSTheme();
+}
 
 new Vue({
   store,
@@ -75,4 +84,12 @@ function scheduleReload () {
       type: store.state.activeType, group: store.state.activeGroup,
     });
   }, 200);
+}
+
+function setOSTheme () {
+  const theme = systemPreferences.isDarkMode() ? 'dark' : 'light';
+  window.uiTheme = theme;
+  if ('setUITheme' in window) {
+    window.setUITheme();
+  }
 }

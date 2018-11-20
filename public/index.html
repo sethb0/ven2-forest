@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">
   </head>
   <body>
+    <script type="text/javascript">
+      window.setUITheme = () => {
+        document.documentElement.setAttribute('data-theme', window.uiTheme || 'light');
+      };
+      setUITheme();
+    </script>
     <div id="app"></div>
 
     <!-- built files will be auto injected -->
