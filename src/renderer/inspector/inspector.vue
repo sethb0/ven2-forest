@@ -20,6 +20,9 @@
   font-family: 'Source Sans Pro', sans-serif;
   color: #6b4423; /* kobicha */
 }
+#inspector .markdown-body strong {
+  font-weight: 800;
+}
 </style>
 
 <script>
@@ -67,7 +70,9 @@ export default {
 };
 
 function formatDescription (charm, variant) {
-  let description = (charm.description || '').replace(/\n([^-])/gu, '\n\n$1');
+  let description = (charm.description || '')
+    .replace(/\n([^-])/gu, '\n\n$1')
+    .replace(/(\n- [^\n]+)\n\n([^-])/gu, '$1\n$2');
   while (description.endsWith('\n')) {
     description = description.slice(0, -1);
   }
@@ -91,6 +96,19 @@ function formatDescription (charm, variant) {
     }
     return `${k} ${v}`;
   });
+  if (charm.martial) {
+    const keys = Object.keys(charm.martial);
+    keys.sort();
+    keywords.push(`Martial (${keys.join(', ')})`);
+  }
+  if (charm['martial-ready']) {
+    keywords.push('Martial-Ready');
+  }
+  if (charm.virtue) {
+    const keys = Object.keys(charm.virtue);
+    keys.sort();
+    keywords.push(...keys.map((v) => `Virtue (${v})`));
+  }
   keywords.sort();
   const details = [`**Cost:** ${charm.cost || '\u2014'}`, `**Action:** ${charm.action}`];
   if (charm.duration) {
