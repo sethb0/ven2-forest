@@ -42,6 +42,8 @@ class Edge extends Element {
     if (n && n > 1) {
       this.attributes.taillabel = `${n}`;
     }
+    this.dep = dependent;
+    this.prov = provider;
   }
 }
 
@@ -260,12 +262,21 @@ class Builder {
   }
 
   pushDependency (node, dep, parent) {
+    let lhead;
+    if (node instanceof Cluster && Object.keys(node.nodes).length) {
+      lhead = node;
+      node = node.nodes[Object.keys(node.nodes)[0]];
+    }
     if (dep.variant) {
       const depParent = this.root.nodes[dep.id];
       if (!depParent) {
         const proxyDep = this.root.nodes[`${dep.id}.${dep.variant}`];
         if (proxyDep) {
-          this.root.edges.push(new Edge(node, proxyDep, dep.count));
+          const edge = new Edge(node, proxyDep, dep.count);
+          if (lhead) {
+            edge.attributes.lhead = lhead.tag;
+          }
+          this.root.edges.push(edge);
           return;
         }
         throw new Error(`Charm ${dep.id} not found`);
@@ -279,14 +290,30 @@ class Builder {
         edge.attributes.constraint = false;
         parent.edges.push(edge);
       } else {
-        this.root.edges.push(new Edge(node, depChild, dep.count));
+        const edge = new Edge(node, depChild, dep.count);
+        if (lhead) {
+          edge.attributes.lhead = lhead.tag;
+        }
+        this.root.edges.push(edge);
       }
     } else {
-      const depNode = this.root.nodes[dep.id];
+      let depNode = this.root.nodes[dep.id];
+      let ltail;
       if (!depNode) {
         throw new Error(`Charm ${dep.id} not found`);
       }
-      this.root.edges.push(new Edge(node, depNode, dep.count));
+      if (depNode instanceof Cluster && Object.keys(depNode.nodes).length) {
+        ltail = depNode;
+        depNode = depNode.nodes[Object.keys(depNode.nodes)[0]];
+      }
+      const edge = new Edge(node, depNode, dep.count);
+      if (lhead) {
+        edge.attributes.lhead = lhead.tag;
+      }
+      if (ltail) {
+        edge.attributes.ltail = ltail.tag;
+      }
+      this.root.edges.push(edge);
     }
   }
 
