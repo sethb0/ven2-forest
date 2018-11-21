@@ -38,8 +38,8 @@ new Vue({
 }).$mount('#app');
 
 function initIpc () {
-  ipcRenderer.on('connected', (evt, { collections }) => {
-    store.dispatch('setEnabledTypes', collections);
+  ipcRenderer.on('connected', (evt, { types }) => {
+    store.dispatch('setEnabledTypes', types);
     store.dispatch('setConnected', true);
     if (store.state.activeType) {
       ipcRenderer.send('refreshGroups', { type: store.state.activeType });

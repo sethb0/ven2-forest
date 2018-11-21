@@ -2,18 +2,6 @@ import { app, Menu } from 'electron';
 
 export function installMenu () {
   const template = [
-    // {
-    //   label: 'Type',
-    //   submenu: [
-    //     { label: 'Coming soon!', enabled: false },
-    //   ],
-    // },
-    // {
-    //   label: 'Group',
-    //   submenu: [
-    //     { label: 'Select a type', enabled: false },
-    //   ],
-    // },
     {
       label: 'Edit',
       submenu: [
@@ -87,12 +75,4 @@ function setOptions (item, win) {
 
 function redisplay (item, win) {
   win.webContents.send('redisplay');
-}
-
-export function setTypes (/* types */) {
-  // noop
-}
-
-export function setGroups (/* groups */) {
-  // noop
 }

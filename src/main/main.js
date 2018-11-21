@@ -20,16 +20,16 @@ protocol.registerStandardSchemes(['app'], { secure: true });
 // must match appId from vue.config.js
 app.setAppUserModelId('ws.sharpcla.venator.forest');
 
-initIpc(
-  (e) => {
-    dialog.showMessageBox(win, {
-      type: 'error',
-      buttons: ['OK'],
-      defaultId: 0,
-      message: e.message,
-    });
-  }
-);
+function errorHandler (message) {
+  dialog.showMessageBox(win, {
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    message,
+  });
+}
+
+initIpc((err) => errorHandler(err.message));
 
 app.on('quit', () => {
   disconnect();
@@ -109,8 +109,8 @@ function createWindow () {
       if (collections) {
         win.webContents.send('connected', { collections });
       }
-    } catch (e) {
-      // IGNORE
+    } catch (err) {
+      errorHandler(err.message);
     }
   });
 

@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { MongoClient } from 'mongodb';
 
-import { setTypes, setGroups } from './menu';
 import { toKebab } from '../common/util';
 
 const CONFIG_FILE = 'database.properties';
@@ -22,7 +21,7 @@ export async function connect (username, password) {
     try {
       const p = path.join(app.getPath('userData'), CONFIG_FILE);
       fs.writeFileSync(p, `url=${url}\n`, { encoding: 'utf8', mode: 0o600 });
-    } catch (e) {
+    } catch (err) {
       // IGNORE
     }
   }
@@ -49,20 +48,20 @@ export async function connectAtStartup () {
   return null;
 }
 
-export async function listGroups (exalt) {
+export async function listGroups (type) {
   if (!clientPromise) {
     throw new Error('Database not connected');
   }
   const a = (await clientPromise)
     .db()
-    .collection(toKebab(exalt))
+    .collection(toKebab(type))
     .distinct('group', {});
   const b = await a;
   b.sort();
   return b.map((x) => x || 'General Charms');
 }
 
-export async function loadCharmGroup (exalt, group, options) {
+export async function loadCharmGroup (type, group, options) {
   if (!clientPromise) {
     throw new Error('Database not connected');
   }
@@ -70,27 +69,25 @@ export async function loadCharmGroup (exalt, group, options) {
     options = group;
     group = null;
   }
+  if (group === 'General Charms') {
+    group = '';
+  }
   const proxies = options?.proxies;
   let filter;
   if (proxies) {
-    filter = { 'for.exalt': exalt };
-    if (group) {
-      filter['for.group'] = group;
-    }
+    filter = { 'for.exalt': type };
+    filter['for.group'] = group || { $exists: 0 };
   } else {
-    filter = {};
-    if (group) {
-      filter.group = group;
-    }
+    filter = { group: group || { $exists: 0 } };
   }
   return (await clientPromise)
     .db()
-    .collection(proxies ? 'proxies' : toKebab(exalt))
+    .collection(proxies ? 'proxies' : toKebab(type))
     .find(filter, { projection: { _id: 0 } })
     .toArray();
 }
 
-export async function loadWithProxies (exalt, group, options) {
+export async function loadWithProxies (type, group, options) {
   if (!clientPromise) {
     throw new Error('Database not connected');
   }
@@ -104,8 +101,8 @@ export async function loadWithProxies (exalt, group, options) {
   const opt1 = { ...options, proxies: false };
   const opt2 = { ...options, proxies: true };
   const results = await Promise.all([
-    loadCharmGroup(exalt, group, opt1),
-    loadCharmGroup(exalt, group, opt2),
+    loadCharmGroup(type, group, opt1),
+    loadCharmGroup(type, group, opt2),
   ]);
   return [].concat(...results);
 }
@@ -116,45 +113,52 @@ export async function disconnect () {
     clientPromise = null;
     try {
       (await p).close(true);
-    } catch (e) {
+    } catch (err) {
       // IGNORE
     }
   }
 }
 
 export function initIpc (errorHandler) {
-  ipcMain.on('connect', (evt, { username, password }) => {
-    connect(username, password)
-      .then((collections) => {
-        setTypes(collections);
-        evt.sender.send('connected', { collections });
-      })
-      .catch(() => errorHandler(
-        new Error('Login failed. Check your username and password and try again.')
-      ));
+  ipcMain.on('connect', async (evt, { username, password }) => {
+    let types;
+    try {
+      types = await connect(username, password);
+    } catch (err) {
+      errorHandler('Login failed. Check your username and password and try again.');
+      return;
+    }
+    evt.sender.send('connected', { types });
   });
 
-  ipcMain.on('disconnect', (evt) => {
-    disconnect()
-      .then(() => {
-        setTypes([]);
-        evt.sender.send('disconnected');
-      })
-      .catch(errorHandler);
+  ipcMain.on('disconnect', async (evt) => {
+    try {
+      await disconnect();
+    } catch (err) {
+      errorHandler(err.message);
+    }
+    evt.sender.send('disconnected');
   });
 
-  ipcMain.on('refreshGroups', (evt, { type }) => {
-    listGroups(type)
-      .then((groups) => {
-        setGroups(type, groups);
-        evt.sender.send('setGroups', { type, groups });
-      })
-      .catch(errorHandler);
+  ipcMain.on('refreshGroups', async (evt, { type }) => {
+    let groups;
+    try {
+      groups = await listGroups(type);
+    } catch (err) {
+      errorHandler(err.message);
+      return;
+    }
+    evt.sender.send('setGroups', { type, groups });
   });
 
-  ipcMain.on('refreshCharms', (evt, { type, group }) => {
-    loadWithProxies(type, group)
-      .then((charms) => evt.sender.send('renderCharms', { type, group, charms }))
-      .catch(errorHandler);
+  ipcMain.on('refreshCharms', async (evt, { type, group }) => {
+    let charms;
+    try {
+      charms = await loadWithProxies(type, group);
+    } catch (err) {
+      errorHandler(err.message);
+      return;
+    }
+    evt.sender.send('renderCharms', { type, group, charms });
   });
 }
