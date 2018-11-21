@@ -105,9 +105,9 @@ function createWindow () {
 
   win.once('show', async () => {
     try {
-      const collections = await connectAtStartup();
-      if (collections) {
-        win.webContents.send('connected', { collections });
+      const types = await connectAtStartup();
+      if (types) {
+        win.webContents.send('connected', { types });
       }
     } catch (err) {
       errorHandler(err.message);
