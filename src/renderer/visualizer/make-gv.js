@@ -201,26 +201,25 @@ class Builder {
               }
             }
           }
-        } else {
-          const node = this.root.nodes[charm.id];
-          if (!node) {
-            throw new Error(`Charm ${charm.id} not found`);
+        }
+        const node = this.root.nodes[charm.id];
+        if (!node) {
+          throw new Error(`Charm ${charm.id} not found`);
+        }
+        const p = charm.prerequisites;
+        if (p) {
+          if (p.excellencies) {
+            this.root.edges.push(new Edge(node, this.getExcellenciesNode(p.excellencies)));
           }
-          const p = charm.prerequisites;
-          if (p) {
-            if (p.excellencies) {
-              this.root.edges.push(new Edge(node, this.getExcellenciesNode(p.excellencies)));
+          if (p.groups?.length) {
+            const l = p.groups.length;
+            for (let i = 0; i < l; i += 1) {
+              this.root.edges.push(new Edge(node, this.getGroupNode(p, i, charm.id)));
             }
-            if (p.groups?.length) {
-              const l = p.groups.length;
-              for (let i = 0; i < l; i += 1) {
-                this.root.edges.push(new Edge(node, this.getGroupNode(p, i, charm.id)));
-              }
-            }
-            if (p.charms?.length) {
-              for (const dep of p.charms) {
-                this.pushDependency(node, dep);
-              }
+          }
+          if (p.charms?.length) {
+            for (const dep of p.charms) {
+              this.pushDependency(node, dep);
             }
           }
         }

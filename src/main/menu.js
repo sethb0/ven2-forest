@@ -19,7 +19,7 @@ export function installMenu () {
       label: 'View',
       submenu: [
         { label: 'Top-Down Layout', type: 'checkbox', click: setOptions },
-        { label: 'Alternate Packing', type: 'checkbox', click: setOptions },
+        // { label: 'Alternate Packing', type: 'checkbox', click: setOptions },
         { type: 'separator' },
         { label: 'Redisplay', accelerator: 'CommandOrControl+R', click: redisplay },
         { role: 'togglefullscreen' },
