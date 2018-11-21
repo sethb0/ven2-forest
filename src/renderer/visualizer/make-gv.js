@@ -81,10 +81,9 @@ class Graph extends Element {
 }
 
 class Cluster extends Graph {
-  constructor (tag, options) {
+  constructor (tag) {
     super(tag);
     this.prefix = 'subgraph';
-    this.attributes.bgcolor = `/svg/${options.clusterColor}`;
   }
 }
 
@@ -95,8 +94,8 @@ class RootGraph extends Graph {
     this.attributes.concentrate = false;
     this.attributes.compound = true;
     this.attributes.splines = 'polyline';
-    this.attributes.rankdir = 'LR';
-    this.attributes.packmode = 'clust';
+    this.attributes.rankdir = options.topdown ? 'TB' : 'LR';
+    this.attributes.packmode = options.pack ? 'node' : 'clust';
     this.attributes.dpi = 300;
     this.attributes.fontsize = FONT_SIZE;
     this.attributes.fontname = FONT_FAMILY;
@@ -109,14 +108,12 @@ class RootGraph extends Graph {
     this.nodeDefaults.style = 'filled';
     this.nodeDefaults.fontsize = FONT_SIZE;
     this.nodeDefaults.fontname = FONT_FAMILY;
-    this.nodeDefaults.fillcolor = `/svg/${options.charmColor}`;
   }
 }
 
 class Builder {
   constructor (charms, options) {
     this.charms = charms.filter((c) => ['charm', 'generic', 'knack', 'proxy'].includes(c.type));
-    this.options = options;
     this.lastTag = 0;
     this.root = new RootGraph(options);
   }
@@ -149,7 +146,7 @@ class Builder {
       } else {
         let node;
         if (charm.variants) {
-          node = new Cluster(`cluster${this.lastTag += 1}`, this.options);
+          node = new Cluster(`cluster${this.lastTag += 1}`);
           for (const variant of charm.variants) {
             const child = new Node(`n${this.lastTag += 1}`);
             const id = `${charm.id}.${variant.id}`;

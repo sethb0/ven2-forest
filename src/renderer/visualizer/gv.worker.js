@@ -1,22 +1,7 @@
 import makeGv from './make-gv';
 
-const COLOR_SETS = {
-  Abyssal: { charmColor: 'darkgray', clusterColor: 'gainsboro' },
-  Alchemical: { charmColor: 'darkorange', clusterColor: 'navajowhite' },
-  'Dragon-Blooded': { charmColor: 'indianred', clusterColor: 'rosybrown' },
-  Infernal: { charmColor: 'lightgreen', clusterColor: 'darkseagreen' },
-  Jadeborn: { charmColor: 'peru', clusterColor: 'burlywood' },
-  Lunar: { charmColor: 'lightskyblue', clusterColor: 'dodgerblue' },
-  Raksha: { charmColor: 'forestgreen', clusterColor: 'yellowgreen' },
-  Sidereal: { charmColor: 'plum', clusterColor: 'mediumpurple' },
-  Solar: { charmColor: 'gold', clusterColor: 'goldenrod' },
-  'Terrestrial Martial Arts': { charmColor: 'indianred', clusterColor: 'rosybrown' },
-  'Celestial Martial Arts': { charmColor: 'lightsteelblue', clusterColor: 'thistle' },
-  'Sidereal Martial Arts': { charmColor: 'plum', clusterColor: 'mediumpurple' },
-};
-
 onmessage = (evt) => {
-  const { type, group, charms } = evt.data;
+  const { type, group, charms, options } = evt.data;
   let title;
   switch (type) {
   case 'Infernal':
@@ -43,7 +28,7 @@ onmessage = (evt) => {
   }
   try {
     postMessage({
-      type, group, title, svg: makeGv(charms, { title, ...COLOR_SETS[type] }),
+      type, group, title, gv: makeGv(charms, { title, ...options || {} }),
     });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console

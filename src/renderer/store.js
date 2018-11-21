@@ -17,6 +17,8 @@ export default new Vuex.Store({
     charms: [],
     svgElement: null,
     selectedCharm: '',
+    pack: false,
+    topdown: false,
   },
   mutations: {
     connected (state, payload) {
@@ -71,6 +73,18 @@ export default new Vuex.Store({
       }
       state.selectedCharm = payload;
     },
+    pack (state, payload) {
+      if (typeof payload !== 'boolean') {
+        throw new TypeError('Invalid data received for "pack" in store');
+      }
+      state.pack = payload;
+    },
+    topdown (state, payload) {
+      if (typeof payload !== 'boolean') {
+        throw new TypeError('Invalid data received for "topdown" in store');
+      }
+      state.topdown = payload;
+    },
   },
   actions: {
     setConnected ({ commit }, payload) {
@@ -99,6 +113,12 @@ export default new Vuex.Store({
     },
     setSelectedCharm ({ commit }, payload) {
       commit('selectedCharm', payload);
+    },
+    setPack ({ commit }, payload) {
+      commit('pack', payload);
+    },
+    setTopdown ({ commit }, payload) {
+      commit('topdown', payload);
     },
   },
 });

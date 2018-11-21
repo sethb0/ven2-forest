@@ -54,7 +54,7 @@ function initIpc () {
       store.dispatch('setGroups', groups);
     }
   });
-  ipcRenderer.on('setCharms', (evt, { type, group, charms }) => {
+  ipcRenderer.on('renderCharms', (evt, { type, group, charms }) => {
     if (type === store.state.activeType || group === store.state.activeGroup) {
       if (requestTimer) {
         clearTimeout(requestTimer);

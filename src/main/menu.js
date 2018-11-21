@@ -1,7 +1,19 @@
 import { app, Menu } from 'electron';
 
-export function installMenu (/* handlers */) {
+export function installMenu () {
   const template = [
+    // {
+    //   label: 'Type',
+    //   submenu: [
+    //     { label: 'Coming soon!', enabled: false },
+    //   ],
+    // },
+    // {
+    //   label: 'Group',
+    //   submenu: [
+    //     { label: 'Select a type', enabled: false },
+    //   ],
+    // },
     {
       label: 'Edit',
       submenu: [
@@ -13,6 +25,16 @@ export function installMenu (/* handlers */) {
         { role: 'paste' },
         { role: 'delete' },
         { role: 'selectall' },
+      ],
+    },
+    {
+      label: 'View',
+      submenu: [
+        { label: 'Top-Down Layout', type: 'checkbox', click: setOptions },
+        { label: 'Alternate Packing', type: 'checkbox', click: setOptions },
+        { type: 'separator' },
+        { label: 'Redisplay', accelerator: 'CommandOrControl+R', click: redisplay },
+        { role: 'togglefullscreen' },
       ],
     },
     {
@@ -49,4 +71,28 @@ export function installMenu (/* handlers */) {
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+let topdown = false;
+let pack = false;
+
+function setOptions (item, win) {
+  if (item.label === 'Top-Down Layout') {
+    topdown = item.checked;
+  } else if (item.label === 'Alternate Packing') {
+    pack = item.checked;
+  }
+  win.webContents.send('setOptions', { topdown, pack });
+}
+
+function redisplay (item, win) {
+  win.webContents.send('redisplay');
+}
+
+export function setTypes (/* types */) {
+  // noop
+}
+
+export function setGroups (/* groups */) {
+  // noop
 }

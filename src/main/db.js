@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { MongoClient } from 'mongodb';
 
+import { setTypes, setGroups } from './menu';
 import { toKebab } from '../common/util';
 
 const CONFIG_FILE = 'database.properties';
@@ -124,7 +125,10 @@ export async function disconnect () {
 export function initIpc (errorHandler) {
   ipcMain.on('connect', (evt, { username, password }) => {
     connect(username, password)
-      .then((collections) => evt.sender.send('connected', { collections }))
+      .then((collections) => {
+        setTypes(collections);
+        evt.sender.send('connected', { collections });
+      })
       .catch(() => errorHandler(
         new Error('Login failed. Check your username and password and try again.')
       ));
@@ -132,19 +136,25 @@ export function initIpc (errorHandler) {
 
   ipcMain.on('disconnect', (evt) => {
     disconnect()
-      .then(() => evt.sender.send('disconnected'))
+      .then(() => {
+        setTypes([]);
+        evt.sender.send('disconnected');
+      })
       .catch(errorHandler);
   });
 
   ipcMain.on('refreshGroups', (evt, { type }) => {
     listGroups(type)
-      .then((groups) => evt.sender.send('setGroups', { type, groups }))
+      .then((groups) => {
+        setGroups(type, groups);
+        evt.sender.send('setGroups', { type, groups });
+      })
       .catch(errorHandler);
   });
 
   ipcMain.on('refreshCharms', (evt, { type, group }) => {
     loadWithProxies(type, group)
-      .then((charms) => evt.sender.send('setCharms', { type, group, charms }))
+      .then((charms) => evt.sender.send('renderCharms', { type, group, charms }))
       .catch(errorHandler);
   });
 }

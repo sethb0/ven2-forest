@@ -21,10 +21,10 @@ export function initWorkers (store) {
 
   gvWorker = new GvWorker();
   gvWorker.onmessage = async (evt) => {
-    const { type, group, svg, title } = evt.data;
+    const { type, group, gv, title } = evt.data;
     if (type === store.state.activeType && group === store.state.activeGroup) {
       try {
-        store.dispatch('setSvgElement', await viz.renderSVGElement(svg));
+        store.dispatch('setSvgElement', await viz.renderSVGElement(gv));
         store.dispatch('setTitle', title);
       } catch (err) {
         viz = new Viz({ workerURL: VIZ_WORKER_URL });
@@ -32,9 +32,32 @@ export function initWorkers (store) {
       }
     }
   };
-  ipcRenderer.on('setCharms', (evt, { type, group, charms }) => {
+  ipcRenderer.on('renderCharms', (evt, { type, group, charms }) => {
     if (type === store.state.activeType && group === store.state.activeGroup) {
-      gvWorker.postMessage({ type, group, charms });
+      gvWorker.postMessage({
+        type,
+        group,
+        charms,
+        options: { topdown: store.state.topdown, pack: store.state.pack },
+      });
     }
+  });
+  ipcRenderer.on('setOptions', (evt, { topdown, pack }) => {
+    store.dispatch('setPack', pack);
+    store.dispatch('setTopdown', topdown);
+    gvWorker.postMessage({
+      type: store.state.activeType,
+      group: store.state.activeGroup,
+      charms: store.state.charms,
+      options: { topdown, pack },
+    });
+  });
+  ipcRenderer.on('redisplay', () => {
+    gvWorker.postMessage({
+      type: store.state.activeType,
+      group: store.state.activeGroup,
+      charms: store.state.charms,
+      options: { topdown: store.state.topdown, pack: store.state.pack },
+    });
   });
 }
