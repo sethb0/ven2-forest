@@ -101,6 +101,33 @@ export function disableCloseCharacter () {
   }
 }
 
+export function enableView () {
+  for (const menu of Menu.getApplicationMenu().items) {
+    if (menu.label === 'View') {
+      for (const item of menu.submenu.items) {
+        if (item.label && !item.role) {
+          // Let the framework take care of items with roles.
+          item.enabled = true;
+        }
+      }
+      break;
+    }
+  }
+}
+
+export function disableView () {
+  for (const menu of Menu.getApplicationMenu().items) {
+    if (menu.label === 'View') {
+      for (const item of menu.submenu.items) {
+        if (item.label && !item.role) {
+          item.enabled = false;
+        }
+      }
+      break;
+    }
+  }
+}
+
 let topdown = false;
 // let pack = false;
 

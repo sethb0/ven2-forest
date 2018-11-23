@@ -42,8 +42,6 @@ class Edge extends Element {
     if (n && n > 1) {
       this.attributes.taillabel = `${n}`;
     }
-    this.dep = dependent;
-    this.prov = provider;
   }
 }
 
@@ -116,6 +114,10 @@ class Builder {
     this.charms = charms.filter((c) => ['charm', 'generic', 'knack', 'proxy'].includes(c.type));
     this.lastTag = 0;
     this.root = new RootGraph(options);
+    this.characterCharms = {};
+    for (const c of options.character) {
+      this.characterCharms[c.variant ? `${c.id}.${c.variant}` : c.id] = true;
+    }
   }
 
   render () {
@@ -155,6 +157,9 @@ class Builder {
             child.attributes.id = id;
             child.attributes.tooltip = `id: ${charm.id}\nvariant: ${variant.id}`;
             child.attributes.label = variant.name;
+            if (this.characterCharms[id]) {
+              child.attributes.label += ' \u2705';
+            }
             child.attributes.shape = REAL_SHAPE;
           }
         } else {
@@ -165,6 +170,9 @@ class Builder {
         node.attributes.id = charm.id;
         node.attributes.tooltip = `id: ${charm.id}`;
         node.attributes.label = Builder.makeLabel(charm);
+        if (this.characterCharms[charm.id]) {
+          node.attributes.label += ' \u2705';
+        }
       }
     }
   }
@@ -186,12 +194,12 @@ class Builder {
             const p = variant.prerequisites;
             if (p) {
               if (p.excellencies) {
-                this.root.edges.push(new Edge(child, this.getExcellenciesNode(p.excellencies)));
+                this.pushSpecialDependency(child, this.getExcellenciesNode(p.excellencies));
               }
               if (p.groups?.length) {
                 const l = p.groups.length;
                 for (let i = 0; i < l; i += 1) {
-                  this.root.edges.push(new Edge(child, this.getGroupNode(p, i, id)));
+                  this.pushSpecialDependency(child, this.getGroupNode(p, i, id));
                 }
               }
               if (p.charms?.length) {
@@ -209,12 +217,12 @@ class Builder {
         const p = charm.prerequisites;
         if (p) {
           if (p.excellencies) {
-            this.root.edges.push(new Edge(node, this.getExcellenciesNode(p.excellencies)));
+            this.pushSpecialDependency(node, this.getExcellenciesNode(p.excellencies));
           }
           if (p.groups?.length) {
             const l = p.groups.length;
             for (let i = 0; i < l; i += 1) {
-              this.root.edges.push(new Edge(node, this.getGroupNode(p, i, charm.id)));
+              this.pushSpecialDependency(node, this.getGroupNode(p, i, charm.id));
             }
           }
           if (p.charms?.length) {
@@ -313,6 +321,20 @@ class Builder {
     }
   }
 
+  pushSpecialDependency (node, depNode) {
+    let lhead;
+    if (node instanceof Cluster && Object.keys(node.nodes).length) {
+      lhead = node;
+      node = node.nodes[Object.keys(node.nodes)[0]];
+    }
+    const edge = new Edge(node, depNode);
+    if (lhead) {
+      edge.attributes.lhead = lhead.tag;
+    }
+    this.root.edges.push(edge);
+  }
+
+
   static makeLabel (charm) {
     let name = charm.name;
     const p = charm.prerequisites;
@@ -334,6 +356,8 @@ class Builder {
 }
 
 export default function makeGv (charms, options) {
+  options ||= {};
+  options.character ||= [];
   const builder = new Builder(charms, options);
   builder.doNodes();
   builder.doEdges();

@@ -38,9 +38,23 @@ export function initWorkers (store) {
         type,
         group,
         charms,
-        options: { topdown: store.state.topdown, pack: store.state.pack },
+        options: {
+          topdown: store.state.topdown,
+          pack: store.state.pack,
+          character: store.state.character,
+        },
       });
     }
+  });
+  ipcRenderer.on('setCharacter', (evt, { data }) => {
+    const character = processCharacterData(data);
+    store.dispatch('setCharacter', character);
+    gvWorker.postMessage({
+      type: store.state.activeType,
+      group: store.state.activeGroup,
+      charms: store.state.charms,
+      options: { topdown: store.state.topdown, pack: store.state.pack, character },
+    });
   });
   ipcRenderer.on('setOptions', (evt, { topdown, pack }) => {
     store.dispatch('setPack', pack);
@@ -49,7 +63,7 @@ export function initWorkers (store) {
       type: store.state.activeType,
       group: store.state.activeGroup,
       charms: store.state.charms,
-      options: { topdown, pack },
+      options: { topdown, pack, character: store.state.character },
     });
   });
   ipcRenderer.on('redisplay', () => {
@@ -57,7 +71,40 @@ export function initWorkers (store) {
       type: store.state.activeType,
       group: store.state.activeGroup,
       charms: store.state.charms,
-      options: { topdown: store.state.topdown, pack: store.state.pack },
+      options: {
+        topdown: store.state.topdown,
+        pack: store.state.pack,
+        character: store.state.character,
+      },
     });
   });
+}
+
+function processCharacterData (data) {
+  if (!data || !(data.charms || data.installed || data.uninstalled)) {
+    return [];
+  }
+  const characterCharms = [].concat(
+    processCharacterCharmBatch(data.charms),
+    processCharacterCharmBatch(data.installed),
+    processCharacterCharmBatch(data.uninstalled),
+  );
+  return characterCharms;
+}
+
+function processCharacterCharmBatch (x) {
+  if (!x || typeof x !== 'object') {
+    return [];
+  }
+  if (Array.isArray(x)) {
+    return [].concat(...x.map(processCharacterCharmBatch));
+  }
+  if (x.id) {
+    return [{ id: x.id, variant: x.variant }];
+  }
+  if (x.name) {
+    // we don't currently look up Charms by name
+    return [];
+  }
+  return processCharacterCharmBatch(Object.values(x));
 }

@@ -5,7 +5,8 @@ import { load as loadYaml } from '@sethb0/yaml-utils';
 import { basename, dirname } from 'path';
 
 import { connectAtStartup, disconnect, initIpc } from './db';
-import { installMenu, enableCloseCharacter, disableCloseCharacter } from './menu';
+import { installMenu, enableCloseCharacter, disableCloseCharacter, enableView, disableView }
+  from './menu';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV !== 'production';
 
@@ -137,6 +138,7 @@ function createWindow () {
     } catch (err) {
       errorHandler(err.message);
     }
+    enableView();
   });
 
   win.on('closed', () => {
@@ -145,6 +147,7 @@ function createWindow () {
       toolsWin.destroy();
       toolsWin = null;
     }
+    disableView();
     disableCloseCharacter();
   });
 }

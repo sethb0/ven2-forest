@@ -15,6 +15,7 @@ export default new Vuex.Store({
     activeType: '',
     activeGroup: '',
     charms: [],
+    character: [],
     svgElement: null,
     selectedCharm: '',
     pack: false,
@@ -64,6 +65,13 @@ export default new Vuex.Store({
       // Not going to do deep inspection--too computationally expensive for too little gain.
       state.charms = payload;
     },
+    character (state, payload) {
+      if (!Array.isArray(payload)) {
+        throw new TypeError('Invalid data received for "charms" in store');
+      }
+      // See immediately above.
+      state.character = payload;
+    },
     svgElement (state, payload) {
       state.svgElement = payload;
     },
@@ -104,6 +112,9 @@ export default new Vuex.Store({
     },
     setCharms ({ commit }, payload) {
       commit('charms', payload);
+    },
+    setCharacter ({ commit }, payload) {
+      commit('character', payload);
     },
     setSvgElement ({ commit }, payload) {
       commit('svgElement', payload);
