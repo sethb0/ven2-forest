@@ -15,7 +15,6 @@
 <script>
 import '../assets/css/Pterra.font.css';
 
-import { mapState } from 'vuex/dist/vuex.esm';
 import VkHeightViewport from 'vuikit/lib/height-viewport';
 import { Grid as VkGrid } from 'vuikit/lib/grid';
 
@@ -28,13 +27,5 @@ export default {
     VenNavbar, VenVisualizer, VenInspector, VkGrid,
   },
   directives: { VkHeightViewport },
-  computed: {
-    ...mapState(['title']),
-  },
-  watch: {
-    title (newValue) {
-      document.title = newValue;
-    },
-  },
 };
 </script>

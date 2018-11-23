@@ -9,7 +9,7 @@ export default new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production', // eslint-disable-line no-process-env
   state: {
     connected: false,
-    title: 'Forest',
+    title: '',
     enabledTypes: ['infernal'],
     groups: [],
     activeType: '',
@@ -31,7 +31,7 @@ export default new Vuex.Store({
       if (typeof payload !== 'string') {
         throw new TypeError('Invalid data received for "title" in store');
       }
-      state.title = payload ? `Forest - ${payload}` : 'Forest';
+      state.title = payload;
     },
     enabledTypes (state, payload) {
       if (!Array.isArray(payload) || payload.some((x) => typeof x !== 'string')) {

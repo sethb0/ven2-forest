@@ -1,9 +1,11 @@
 /* eslint no-process-env: off */
-import { app, dialog, protocol, BrowserWindow } from 'electron';
+import { app, dialog, ipcMain, protocol, BrowserWindow } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
+import { load as loadYaml } from '@sethb0/yaml-utils';
+import { basename, dirname } from 'path';
 
 import { connectAtStartup, disconnect, initIpc } from './db';
-import { installMenu } from './menu';
+import { installMenu, enableCloseCharacter, disableCloseCharacter } from './menu';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV !== 'production';
 
@@ -11,6 +13,8 @@ const IS_DEVELOPMENT = process.env.NODE_ENV !== 'production';
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 let toolsWin;
+
+let title = '';
 
 // Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes(['app'], { secure: true });
@@ -26,7 +30,7 @@ function errorHandler (message) {
     buttons: ['OK'],
     defaultId: 0,
     message,
-  });
+  }, () => null);
 }
 
 initIpc((err) => errorHandler(err.message));
@@ -47,9 +51,22 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (win === null) {
+  if (!win) {
     createWindow();
   }
+});
+
+let characterFileToOpen;
+
+app.on('will-finish-launching', () => {
+  app.on('open-file', (evt, path) => {
+    evt.preventDefault();
+    if (app.isReady()) {
+      openCharacter(path);
+    } else {
+      characterFileToOpen = path;
+    }
+  });
 });
 
 // This method will be called when Electron has finished
@@ -60,8 +77,16 @@ app.on('ready', async () => {
     // Install Vue Devtools
     await installVueDevtools();
   }
-  installMenu();
+  installMenu(openCharacter, closeCharacter);
   createWindow();
+  if (characterFileToOpen) {
+    openCharacter(characterFileToOpen);
+    characterFileToOpen = null;
+  }
+});
+
+ipcMain.on('refreshTitle', (evt) => {
+  evt.sender.send('setCharacter', { title });
 });
 
 // Exit cleanly on request from parent process in development mode.
@@ -120,5 +145,57 @@ function createWindow () {
       toolsWin.destroy();
       toolsWin = null;
     }
+    disableCloseCharacter();
   });
+}
+
+function openCharacter (path) {
+  if (typeof path === 'string') {
+    doOpenCharacter(path);
+  } else {
+    dialog.showOpenDialog(win, {
+      properties: ['openFile'],
+      filters: [
+        { name: 'YAML Files', extensions: ['yml'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    }, (p) => p?.length && doOpenCharacter(p[0]));
+  }
+}
+
+async function doOpenCharacter (p) {
+  let data;
+  try {
+    data = await loadYaml(p);
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      throw new Error(`${p} is not a valid character data file`);
+    }
+  } catch (err) {
+    dialog.showMessageBox(win, {
+      type: 'error',
+      buttons: ['OK'],
+      message: err.message,
+    }, () => null);
+    return;
+  }
+  app.addRecentDocument(p);
+  let dir = dirname(p);
+  const home = process.env.HOME;
+  if (home && dir.startsWith(`${home}/`)) {
+    dir = `~${dir.slice(home.length)}`;
+  }
+  if (!win) {
+    createWindow();
+  }
+  win.setRepresentedFilename(p);
+  title = `${basename(p)} \u2014 ${dir}`;
+  win.webContents.send('setCharacter', { data, title });
+  enableCloseCharacter();
+}
+
+function closeCharacter () {
+  win.setRepresentedFilename('');
+  title = '';
+  win.webContents.send('setCharacter', { data: {}, title });
+  disableCloseCharacter();
 }

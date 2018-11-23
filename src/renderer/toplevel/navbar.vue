@@ -41,6 +41,12 @@
         </vk-navbar-nav-dropdown>
       </vk-navbar-nav>
 
+      <vk-navbar-nav slot="center">
+        <vk-navbar-item>
+          <h4 class="brand-font uk-margin-remove-bottom">{{ title }}</h4>
+        </vk-navbar-item>
+      </vk-navbar-nav>
+
       <vk-navbar-nav slot="right">
         <vk-navbar-item>
           <vk-button @click="disconnect" size="small">
@@ -105,7 +111,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'connected', 'enabledTypes', 'groups', 'activeType', 'activeGroup',
+      'connected', 'enabledTypes', 'groups', 'activeType', 'activeGroup', 'title',
     ]),
     groupsTitle () {
       return this.activeType.endsWith(' Martial Arts') ? 'Style' : 'Group';
@@ -117,7 +123,7 @@ export default {
     },
     nonExaltedTypes () {
       return [
-        'Jadeborn', 'Raksha',
+        'Knacks', 'Jadeborn', 'Raksha',
       ].filter((x) => this.enabledTypes.includes(toKebab(x)));
     },
     martialArtsTypes () {

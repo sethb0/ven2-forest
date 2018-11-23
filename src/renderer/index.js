@@ -12,16 +12,20 @@ import { initWorkers } from './workers';
 
 Vue.use(VueSimpleMarkdown);
 
+ipcRenderer.on('setCharacter', (evt, { title }) => {
+  if (title) {
+    document.title = title;
+  } else {
+    document.title = 'Forest';
+  }
+});
+
 let requestTimer = 0;
 
 new Vue({
   store,
   render: (h) => h(App),
   computed: mapState(['activeType', 'activeGroup']),
-  mounted () {
-    initIpc();
-    initWorkers(store);
-  },
   watch: {
     activeType (newValue) {
       ipcRenderer.send('refreshGroups', { type: newValue });
@@ -32,8 +36,13 @@ new Vue({
         clearTimeout(requestTimer);
         requestTimer = 0;
       }
-      ipcRenderer.send('refreshCharms', { type: store.state.activeType, group: newValue });
+      ipcRenderer.send('refreshCharms', { type: this.activeType, group: newValue });
     },
+  },
+  mounted () {
+    initIpc();
+    initWorkers(store);
+    ipcRenderer.send('refreshTitle');
   },
 }).$mount('#app');
 
