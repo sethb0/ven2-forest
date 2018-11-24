@@ -285,16 +285,24 @@ class Builder {
         }
         throw new Error(`Charm ${dep.id} not found`);
       }
-      const depChild = depParent.nodes[dep.variant];
-      if (!depChild) {
-        throw new Error(`Variant ${dep.variant} not found in Charm ${dep.id}`);
-      }
-      if (depParent.tag === parent?.tag) {
-        const edge = new Edge(node, depChild, dep.count);
-        edge.attributes.constraint = false;
-        parent.edges.push(edge);
+      if (depParent instanceof Cluster) {
+        const depChild = depParent.nodes[dep.variant];
+        if (!depChild) {
+          throw new Error(`Variant ${dep.variant} not found in Charm ${dep.id}`);
+        }
+        if (depParent.tag === parent?.tag) {
+          const edge = new Edge(node, depChild, dep.count);
+          edge.attributes.constraint = false;
+          parent.edges.push(edge);
+        } else {
+          const edge = new Edge(node, depChild, dep.count);
+          if (lhead) {
+            edge.attributes.lhead = lhead.tag;
+          }
+          this.root.edges.push(edge);
+        }
       } else {
-        const edge = new Edge(node, depChild, dep.count);
+        const edge = new Edge(node, depParent, dep.count);
         if (lhead) {
           edge.attributes.lhead = lhead.tag;
         }
@@ -304,6 +312,7 @@ class Builder {
       let depNode = this.root.nodes[dep.id];
       let ltail;
       if (!depNode) {
+        console.log(node);
         throw new Error(`Charm ${dep.id} not found`);
       }
       if (depNode instanceof Cluster && Object.keys(depNode.nodes).length) {

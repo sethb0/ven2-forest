@@ -6,12 +6,10 @@ onmessage = (evt) => {
     let title;
     switch (type) {
     case 'Infernal':
-      if (group === 'General Charms') {
-        title = `${type} ${group}`;
-      } else if (group === 'Heretical') {
-        title = `${type} Heretical Charms`;
+      if (group === 'Heretical') {
+        title = 'Heretical Charms';
       } else if (group === 'Martial Arts') {
-        title = `${type} ${group} Charms`;
+        title = 'Infernal Martial Arts Charms';
       } else {
         title = `Charms of ${group === 'Ebon Dragon' ? 'the ' : ''}${group}`;
       }

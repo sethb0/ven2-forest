@@ -58,7 +58,7 @@ export async function listGroups (type) {
     .distinct('group', {});
   const b = await a;
   b.sort();
-  return b.map((x) => x || 'General Charms');
+  return b.filter((x) => x);
 }
 
 export async function loadCharmGroup (type, group, options) {
@@ -68,9 +68,6 @@ export async function loadCharmGroup (type, group, options) {
   if (!options && typeof group === 'object') {
     options = group;
     group = null;
-  }
-  if (group === 'General Charms') {
-    group = '';
   }
   const proxies = options?.proxies;
   let filter;
@@ -101,6 +98,27 @@ export async function loadWithProxies (type, group, options) {
   const opt1 = { ...options, proxies: false };
   const opt2 = { ...options, proxies: true };
   const results = await Promise.all([
+    loadCharmGroup(type, group, opt1),
+    loadCharmGroup(type, group, opt2),
+  ]);
+  return [].concat(...results);
+}
+
+export async function loadWithProxiesAndGenerics (type, group, options) {
+  if (!clientPromise) {
+    throw new Error('Database not connected');
+  }
+  if (!options && typeof group === 'object') {
+    options = group;
+    group = null;
+  }
+  if (!options) {
+    options = {};
+  }
+  const opt1 = { ...options, proxies: false };
+  const opt2 = { ...options, proxies: true };
+  const results = await Promise.all([
+    loadCharmGroup(type, '', opt1),
     loadCharmGroup(type, group, opt1),
     loadCharmGroup(type, group, opt2),
   ]);
@@ -154,11 +172,68 @@ export function initIpc (errorHandler) {
   ipcMain.on('refreshCharms', async (evt, { type, group }) => {
     let charms;
     try {
-      charms = await loadWithProxies(type, group);
+      charms = await loadWithProxiesAndGenerics(type, group);
     } catch (err) {
       errorHandler(err.message);
       return;
     }
-    evt.sender.send('renderCharms', { type, group, charms });
+    evt.sender.send(
+      'renderCharms',
+      { type, group, charms: filterGenerics(charms, type, group) }
+    );
   });
+}
+
+function filterGenerics (charms, type, group) {
+  if (
+    (group === 'Martial Arts' || group === 'Heretical')
+    && (type === 'Alchemical' || type === 'Lunar' || type === 'Infernal')
+  ) {
+    return charms.filter((charm) => charm.type !== 'generic');
+  }
+  let g = group;
+  if (g.includes(' ')) {
+    g = g.replace(/ (\S?)/gu, (match, p1) => p1.toUpperCase());
+  }
+  const out = [];
+  for (const charm of charms) {
+    if (charm.type === 'generic') {
+      if (charm.variants) {
+        if (charm.id !== 'Infernal.2ndExcellency' || group !== 'Ebon Dragon') {
+          const ch = { ...charm };
+          let variant;
+          for (const v of ch.variants) {
+            if (v.id === g) {
+              variant = v;
+              break;
+            }
+          }
+          if (variant?.description) {
+            const gTxt = group === 'Ebon Dragon' ? 'The Ebon Dragon' : group;
+            ch.description = `${ch.description}\n### ${gTxt}\n${variant.description}`;
+          }
+          // console.log(`${ch.id}|${g}`);
+          ch.name = renameCharm(ch, group, variant);
+          delete ch.variants;
+          out.push(ch);
+        }
+      } else {
+        // console.log(`${charm.id}`);
+        out.push({ ...charm, name: renameCharm(charm, group) });
+      }
+    } else {
+      out.push(charm);
+    }
+  }
+  return out;
+}
+
+function renameCharm (charm, group, variant) {
+  if (variant?.name) {
+    return variant.name;
+  }
+  if (charm.name.includes('{')) {
+    return charm.name.replace(/\{.*\}/u, group);
+  }
+  return `${charm.name}: ${group}`;
 }
