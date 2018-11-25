@@ -88,10 +88,11 @@ function formatDescription (charm, variant, group) {
   const p = charm.prerequisites;
   const minEssence = p?.essence || 1;
   const minTraits = p?.traits || {};
-  const minima = [`Essence ${minEssence}`];
+  const minima = [];
   for (const [k, v] of Object.entries(minTraits)) {
     minima.push(`${k === '_' ? group : k} ${v}`);
   }
+  minima.push(`Essence ${minEssence}`);
   const keywords = Object.entries(charm.keywords || {}).map(([k, v]) => {
     if (v === true) {
       return k;
