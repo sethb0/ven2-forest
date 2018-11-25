@@ -199,26 +199,31 @@ function filterGenerics (charms, type, group) {
   for (const charm of charms) {
     if (charm.type === 'generic') {
       if (charm.variants) {
-        if (charm.id !== 'Infernal.2ndExcellency' || group !== 'Ebon Dragon') {
-          const ch = { ...charm };
-          let variant;
-          for (const v of ch.variants) {
-            if (v.id === g) {
-              variant = v;
-              break;
-            }
+        const ch = { ...charm };
+        let variant;
+        for (const v of ch.variants) {
+          if (v.id === g) {
+            variant = v;
+            break;
           }
-          if (variant?.description) {
-            const gTxt = group === 'Ebon Dragon' ? 'The Ebon Dragon' : group;
-            ch.description = `${ch.description}\n### ${gTxt}\n${variant.description}`;
-          }
-          // console.log(`${ch.id}|${g}`);
-          ch.name = renameCharm(ch, group, variant);
-          delete ch.variants;
-          out.push(ch);
         }
-      } else {
-        // console.log(`${charm.id}`);
+        if (variant?.description) {
+          const gTxt = group === 'Ebon Dragon' ? 'The Ebon Dragon' : group;
+          ch.description = `${ch.description}\n### ${gTxt}\n${variant.description}`;
+        }
+        ch.name = renameCharm(ch, group, variant);
+        delete ch.variants;
+        out.push(ch);
+      } else if (
+        !(
+          charm.id === 'Infernal.2ndExcellency'
+          && g === 'EbonDragon'
+        )
+        && !(
+          charm.id === 'Abyssal.RaveningMouthOf'
+          && !['Archery', 'MartialArts', 'Melee', 'Thrown'].includes(g)
+        )
+      ) {
         out.push({ ...charm, name: renameCharm(charm, group) });
       }
     } else {

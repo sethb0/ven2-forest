@@ -1,8 +1,10 @@
 <template>
   <div id="inspector">
+    <!-- eslint-disable-next-line vue/component-name-in-template-casing -->
     <vue-simple-markdown :source="markdown"
       :emoji="false" :image="false" :highlight="false" :link="false" :linkify="false"
-    ></vue-simple-markdown>
+    >
+    </vue-simple-markdown>
   </div>
 </template>
 
@@ -32,7 +34,7 @@ export default {
   data () {
     return { markdown: '' };
   },
-  computed: mapState(['charms', 'selectedCharm']),
+  computed: mapState(['charms', 'selectedCharm', 'activeGroup']),
   methods: {
     updateMarkdown () {
       if (this.charms && this.selectedCharm) {
@@ -51,7 +53,7 @@ export default {
                   }
                 }
               }
-              this.markdown = formatDescription(charm, variant);
+              this.markdown = formatDescription(charm, variant, this.activeGroup);
             }
             break;
           }
@@ -69,7 +71,7 @@ export default {
   },
 };
 
-function formatDescription (charm, variant) {
+function formatDescription (charm, variant, group) {
   let description = (charm.description || '')
     .replace(/\n([^-])/gu, '\n\n$1')
     .replace(/(\n- [^\n]+)\n\n([^-])/gu, '$1\n$2');
@@ -88,7 +90,7 @@ function formatDescription (charm, variant) {
   const minTraits = p?.traits || {};
   const minima = [`Essence ${minEssence}`];
   for (const [k, v] of Object.entries(minTraits)) {
-    minima.push(`${k} ${v}`);
+    minima.push(`${k === '_' ? group : k} ${v}`);
   }
   const keywords = Object.entries(charm.keywords || {}).map(([k, v]) => {
     if (v === true) {

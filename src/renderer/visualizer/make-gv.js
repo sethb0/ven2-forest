@@ -312,7 +312,6 @@ class Builder {
       let depNode = this.root.nodes[dep.id];
       let ltail;
       if (!depNode) {
-        console.log(node);
         throw new Error(`Charm ${dep.id} not found`);
       }
       if (depNode instanceof Cluster && Object.keys(depNode.nodes).length) {
