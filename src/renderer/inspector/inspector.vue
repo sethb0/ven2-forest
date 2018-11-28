@@ -1,10 +1,7 @@
 <template>
   <div id="inspector">
-    <!-- eslint-disable-next-line vue/component-name-in-template-casing -->
-    <vue-simple-markdown :source="markdown"
-      :emoji="false" :image="false" :highlight="false" :link="false" :linkify="false"
-    >
-    </vue-simple-markdown>
+    <div class="markdown-body" v-html="html">
+    </div>
   </div>
 </template>
 
@@ -14,25 +11,30 @@
   overflow-y: scroll;
   overscroll-behavior: contain;
 }
-#inspector .markdown-body {
+.markdown-body {
   padding: 10px 15px;
-  font-size: 10pt;
+  font-size: 11pt;
 }
-#inspector .markdown-body, #inspector .markdown-body * {
-  font-family: 'Source Sans Pro', sans-serif;
+.markdown-body, .markdown-body * {
+  font-family: 'Nunito', sans-serif;
   color: #6b4423; /* kobicha */
 }
-#inspector .markdown-body strong {
+.markdown-body strong {
   font-weight: 800;
 }
 </style>
 
 <script>
 import { mapState } from 'vuex/dist/vuex.esm';
+import Markdown from 'markdown-it';
+import MarkdownDeflist from 'markdown-it-deflist';
+
+const md = new Markdown({ breaks: true })
+  .use(MarkdownDeflist);
 
 export default {
   data () {
-    return { markdown: '' };
+    return { html: '' };
   },
   computed: mapState(['charms', 'selectedCharm', 'activeGroup']),
   methods: {
@@ -53,7 +55,7 @@ export default {
                   }
                 }
               }
-              this.markdown = formatDescription(charm, variant, this.activeGroup);
+              this.html = md.render(formatDescription(charm, variant, this.activeGroup));
             }
             break;
           }

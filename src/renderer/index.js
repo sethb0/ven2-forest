@@ -1,16 +1,12 @@
 import '@vuikit/theme';
-import 'vue-simple-markdown/dist/vue-simple-markdown.css';
 
 import { ipcRenderer } from 'electron';
 import Vue from 'vue/dist/vue.runtime.esm';
-import VueSimpleMarkdown from 'vue-simple-markdown';
 import { mapState } from 'vuex/dist/vuex.esm';
 
 import App from './toplevel/app.vue';
 import store from './store';
 import { initWorkers } from './workers';
-
-Vue.use(VueSimpleMarkdown);
 
 ipcRenderer.on('setCharacter', (evt, { title }) => {
   if (title) {
