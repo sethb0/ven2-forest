@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable vue/component-name-in-template-casing -->
   <vk-navbar id="navbar" class="uk-light">
     <vk-navbar-logo id="logo">
       <img :src="logo" alt="Venator logo">
@@ -10,14 +11,16 @@
           <vk-navbar-nav-dropdown-nav>
             <vk-nav-item v-for="x in exaltedTypes" :key="x" :active="x === activeType"
               @click="selectType(x)" :title="x"
-            ></vk-nav-item>
+            >
+            </vk-nav-item>
 
             <vk-nav-item-divider v-if="exaltedTypes.length && nonExaltedTypes.length">
             </vk-nav-item-divider>
 
             <vk-nav-item v-for="x in nonExaltedTypes" :key="x" :active="x === activeType"
               @click="selectType(x)" :title="x"
-            ></vk-nav-item>
+            >
+            </vk-nav-item>
 
             <vk-nav-item-divider
               v-if="(exaltedTypes.length || nonExaltedTypes.length) && martialArtsTypes.length"
@@ -26,24 +29,42 @@
 
             <vk-nav-item v-for="x in martialArtsTypes" :key="x" :active="x === activeType"
               @click="selectType(x)" :title="x"
-            ></vk-nav-item>
+            >
+            </vk-nav-item>
           </vk-navbar-nav-dropdown-nav>
         </vk-navbar-nav-dropdown>
 
         <vk-navbar-nav-dropdown v-if="groups.length" :title="groupsTitle"
           :offset="0" :delay-hide="300"
         >
-          <vk-navbar-nav-dropdown-nav>
+          <vk-navbar-nav-dropdown-nav v-if="groups.length <= maxGroupColumn">
             <vk-nav-item v-for="x in groups" :key="x" :active="x === activeGroup"
-              @click="selectGroup(x)" :title="x"
-            ></vk-nav-item>
+              @click="selectGroup(x)" :title="x" class="uk-margin-remove"
+            >
+            </vk-nav-item>
           </vk-navbar-nav-dropdown-nav>
+          <template v-else>
+            <vk-navbar-nav-dropdown-nav>
+              <vk-nav-item v-for="x in firstGroups" :key="x" :active="x === activeGroup"
+                @click="selectGroup(x)" :title="x" class="uk-margin-remove"
+              >
+              </vk-nav-item>
+            </vk-navbar-nav-dropdown-nav>
+            <vk-navbar-nav-dropdown-nav>
+              <vk-nav-item v-for="x in secondGroups" :key="x" :active="x === activeGroup"
+                @click="selectGroup(x)" :title="x" class="uk-margin-remove"
+              >
+              </vk-nav-item>
+            </vk-navbar-nav-dropdown-nav>
+          </template>
         </vk-navbar-nav-dropdown>
       </vk-navbar-nav>
 
       <vk-navbar-nav slot="center">
         <vk-navbar-item>
-          <h4 class="brand-font uk-margin-remove-bottom">{{ title }}</h4>
+          <h4 class="brand-font uk-margin-remove-bottom">
+            {{ title }}
+          </h4>
         </vk-navbar-item>
       </vk-navbar-nav>
 
@@ -90,6 +111,8 @@ import { NavItem, NavItemDivider } from 'vuikit/lib/nav';
 import logo from '../assets/logo.svg';
 import { toKebab } from '../../common/util';
 
+const MAX_GROUP_COLUMN = 13;
+
 export default {
   components: {
     VkButton: Button,
@@ -107,6 +130,7 @@ export default {
       logo,
       username: '',
       password: '',
+      maxGroupColumn: MAX_GROUP_COLUMN,
     };
   },
   computed: {
@@ -130,6 +154,12 @@ export default {
       return [
         'Terrestrial Martial Arts', 'Celestial Martial Arts', 'Sidereal Martial Arts',
       ].filter((x) => this.enabledTypes.includes(toKebab(x)));
+    },
+    firstGroups () {
+      return this.groups.slice(0, Math.ceil(this.groups.length / 2));
+    },
+    secondGroups () {
+      return this.groups.slice(Math.ceil(this.groups.length / 2));
     },
   },
   methods: {
