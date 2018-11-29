@@ -74,6 +74,14 @@ export default {
 };
 
 function formatDescription (charm, variant, group) {
+  let name = charm.name;
+  if (variant?.name) {
+    if (name.includes('{')) {
+      name = name.replace(/\{.*\}/u, variant.name);
+    } else {
+      name = `${name}: ${variant.name}`;
+    }
+  }
   let description = (charm.description || '')
     .replace(/\n([^-|])/gu, '\n\n$1')
     .replace(/(\n- [^\n]+)\n\n([^-])/gu, '$1\n$2');
@@ -119,7 +127,7 @@ function formatDescription (charm, variant, group) {
   if (charm.duration) {
     details.push(`**Duration:** ${charm.duration}`);
   }
-  return `## ${charm.name}
+  return `## ${name}
 **Minima:** ${minima.join(', ')}
 **Keywords:** ${keywords.length ? keywords.join(', ') : '\u2014'}
 ${details.join('\n')}
