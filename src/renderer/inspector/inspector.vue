@@ -75,13 +75,13 @@ export default {
 
 function formatDescription (charm, variant, group) {
   let description = (charm.description || '')
-    .replace(/\n([^-])/gu, '\n\n$1')
+    .replace(/\n([^-|])/gu, '\n\n$1')
     .replace(/(\n- [^\n]+)\n\n([^-])/gu, '$1\n$2');
   while (description.endsWith('\n')) {
     description = description.slice(0, -1);
   }
   if (variant?.description) {
-    let variantDescription = variant.description.replace(/\n([^-])/gu, '\n\n$1');
+    let variantDescription = variant.description.replace(/\n([^-|])/gu, '\n\n$1');
     while (variantDescription.endsWith('\n')) {
       variantDescription = variantDescription.slice(0, -1);
     }
