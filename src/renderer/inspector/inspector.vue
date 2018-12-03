@@ -16,11 +16,11 @@
   font-size: 11pt;
 }
 .markdown-body, .markdown-body * {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
   color: #6b4423; /* kobicha */
 }
 .markdown-body strong {
-  font-weight: 800;
+  font-weight: 700;
 }
 </style>
 
