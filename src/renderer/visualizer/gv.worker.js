@@ -20,10 +20,10 @@ onmessage = (evt) => {
     case 'Terrestrial Martial Arts':
     case 'Celestial Martial Arts':
     case 'Sidereal Martial Arts':
-      title = group === 'Enlightening' ? 'Enlightening Charms' : group;
+      title = group.includes(' Style') ? group : `${group} Charms`;
       break;
     default:
-      title = `${type} ${group}${group.endsWith(' Charms') ? '' : ' Charms'}`;
+      title = `${type} ${group}${group.includes(' Charms') ? '' : ' Charms'}`;
     }
     try {
       postMessage({
