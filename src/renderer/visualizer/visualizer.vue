@@ -60,7 +60,7 @@
   --visualizer-charm: var(--jadeborn-charm);
   --visualizer-cluster: var(--jadeborn-cluster);
 }
-#visualizer.lunar {
+#visualizer.knacks, #visualizer.lunar {
   --visualizer-charm: var(--lunar-charm);
   --visualizer-cluster: var(--lunar-cluster);
 }

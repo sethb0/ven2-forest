@@ -82,56 +82,66 @@ function formatDescription (charm, variant, group) {
       name = `${name}: ${variant.name}`;
     }
   }
-  let description = (charm.description || '')
+  let description = reformatLineBreaks(charm.description);
+  if (variant?.description) {
+    description = `${description}
+### ${variant.name}
+${reformatLineBreaks(variant.description)}`;
+  }
+  const p = charm.prerequisites;
+  const minEssence = Math.max(p?.essence || 0, variant?.prerequisites?.essence || 0);
+  const minTraits = { ...p?.traits || {}, ...variant?.prerequisites?.traits || {} };
+  const minima = [];
+  for (const [k, v] of Object.entries(minTraits)) {
+    minima.push(`${k === '_' ? group : k} ${v}`);
+  }
+  if (minEssence) {
+    minima.push(`Essence ${minEssence}`);
+  }
+  let details = [];
+  if (charm.type !== 'knack') {
+    const keywords = Object.entries(charm.keywords || {}).map(([k, v]) => {
+      if (v === true) {
+        return k;
+      }
+      return `${k} ${v}`;
+    });
+    if (charm.martial) {
+      const keys = Object.keys(charm.martial);
+      keys.sort();
+      keywords.push(`Martial (${keys.join(', ')})`);
+    }
+    if (charm['martial-ready']) {
+      keywords.push('Martial-Ready');
+    }
+    if (charm.virtue) {
+      const keys = Object.keys(charm.virtue);
+      keys.sort();
+      keywords.push(...keys.map((v) => `Virtue (${v})`));
+    }
+    keywords.sort();
+    details = [
+      `\n**Keywords:** ${keywords.length ? keywords.join(', ') : '\u2014'}`,
+      `\n**Cost:** ${charm.cost || '\u2014'}`,
+      `\n**Action:** ${charm.action}`,
+    ];
+    if (charm.duration) {
+      details.push(`\n**Duration:** ${charm.duration}`);
+    }
+  }
+  return `## ${name}
+**Minima:** ${minima.length ? minima.join(', ') : '(see below)'}${details.join('')}
+
+${description}`;
+}
+
+function reformatLineBreaks (description) {
+  description = (description || '')
     .replace(/\n([^-|])/gu, '\n\n$1')
     .replace(/(\n- [^\n]+)\n\n([^-])/gu, '$1\n$2');
   while (description.endsWith('\n')) {
     description = description.slice(0, -1);
   }
-  if (variant?.description) {
-    let variantDescription = variant.description.replace(/\n([^-|])/gu, '\n\n$1');
-    while (variantDescription.endsWith('\n')) {
-      variantDescription = variantDescription.slice(0, -1);
-    }
-    description = `${description}\n### ${variant.name}\n${variantDescription}`;
-  }
-  const p = charm.prerequisites;
-  const minEssence = p?.essence || 1;
-  const minTraits = p?.traits || {};
-  const minima = [];
-  for (const [k, v] of Object.entries(minTraits)) {
-    minima.push(`${k === '_' ? group : k} ${v}`);
-  }
-  minima.push(`Essence ${minEssence}`);
-  const keywords = Object.entries(charm.keywords || {}).map(([k, v]) => {
-    if (v === true) {
-      return k;
-    }
-    return `${k} ${v}`;
-  });
-  if (charm.martial) {
-    const keys = Object.keys(charm.martial);
-    keys.sort();
-    keywords.push(`Martial (${keys.join(', ')})`);
-  }
-  if (charm['martial-ready']) {
-    keywords.push('Martial-Ready');
-  }
-  if (charm.virtue) {
-    const keys = Object.keys(charm.virtue);
-    keys.sort();
-    keywords.push(...keys.map((v) => `Virtue (${v})`));
-  }
-  keywords.sort();
-  const details = [`**Cost:** ${charm.cost || '\u2014'}`, `**Action:** ${charm.action}`];
-  if (charm.duration) {
-    details.push(`**Duration:** ${charm.duration}`);
-  }
-  return `## ${name}
-**Minima:** ${minima.join(', ')}
-**Keywords:** ${keywords.length ? keywords.join(', ') : '\u2014'}
-${details.join('\n')}
-
-${description}`;
+  return description;
 }
 </script>

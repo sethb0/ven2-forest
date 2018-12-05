@@ -14,6 +14,9 @@ onmessage = (evt) => {
         title = `Charms of ${group === 'Ebon Dragon' ? 'the ' : ''}${group}`;
       }
       break;
+    case 'Knacks':
+      title = 'Lunar Knacks';
+      break;
     case 'Jadeborn':
       title = `Jadeborn ${group} Pattern`;
       break;

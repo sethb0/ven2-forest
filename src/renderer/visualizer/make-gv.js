@@ -106,6 +106,7 @@ class RootGraph extends Graph {
     this.nodeDefaults.style = 'filled';
     this.nodeDefaults.fontsize = FONT_SIZE;
     this.nodeDefaults.fontname = FONT_FAMILY;
+    this.nodeDefaults.shape = 'house';
   }
 }
 
@@ -158,7 +159,7 @@ class Builder {
             child.attributes.tooltip = `id: ${charm.id}\nvariant: ${variant.id}`;
             child.attributes.label = variant.name;
             if (this.characterCharms[id]) {
-              child.attributes.label += ' \u2705';
+              child.attributes.label += ' \u2705'.repeat(this.characterCharms[id].count || 1);
             }
             child.attributes.shape = REAL_SHAPE;
           }
@@ -171,7 +172,7 @@ class Builder {
         node.attributes.tooltip = `id: ${charm.id}`;
         node.attributes.label = Builder.makeLabel(charm);
         if (this.characterCharms[charm.id]) {
-          node.attributes.label += ' \u2705';
+          node.attributes.label += ' \u2705'.repeat(this.characterCharms[charm.id].count || 1);
         }
       }
     }
@@ -252,6 +253,9 @@ class Builder {
   getGroupNode (prereqs, i, id) {
     const group = prereqs.groups[i];
     const groupId = `${id} group #${i}`;
+    if (this.root.nodes[groupId]) {
+      return this.root.nodes[groupId];
+    }
     const node = this.root.nodes[groupId] = new Node(`n${this.lastTag += 1}`);
     node.attributes.id = groupId;
     node.attributes.label = `${group.threshold}`;
@@ -345,11 +349,14 @@ class Builder {
 
   static makeLabel (charm) {
     let name = charm.name;
-    const p = charm.prerequisites;
+    const p = charm.prerequisites || {};
     if (!p.excellencies && !p.charms?.length && !p.groups?.length) {
       name = name.toUpperCase();
     }
-    const minEssence = p.essence;
+    if (charm.type === 'knack') {
+      return name;
+    }
+    const minEssence = p.essence || 1;
     let keyTrait = charm.group || '_';
     if (charm.exalt?.endsWith(' Martial Arts') && keyTrait !== 'Dexterity') {
       keyTrait = 'Martial Arts';
