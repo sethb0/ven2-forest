@@ -1,7 +1,7 @@
 {
   "name": "@ven2/forest",
   "productName": "Forest",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "private": true,
   "description": "Exalted 2.5e Charm tree visualization on the desktop",
   "author": {
