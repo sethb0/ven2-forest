@@ -111,13 +111,14 @@ class RootGraph extends Graph {
 }
 
 class Builder {
-  constructor (charms, options) {
+  constructor (charms, select, options) {
     this.charms = charms.filter((c) => ['charm', 'generic', 'knack', 'proxy'].includes(c.type));
+    this.select = select;
     this.lastTag = 0;
     this.root = new RootGraph(options);
     this.characterCharms = {};
     for (const c of options.character) {
-      this.characterCharms[c.variant ? `${c.id}.${c.variant}` : c.id] = true;
+      this.characterCharms[c.variant ? `${c.id}.${c.variant}` : c.id] = c.count;
     }
   }
 
@@ -158,8 +159,9 @@ class Builder {
             child.attributes.id = id;
             child.attributes.tooltip = `id: ${charm.id}\nvariant: ${variant.id}`;
             child.attributes.label = variant.name;
-            if (this.characterCharms[id]) {
-              child.attributes.label += ' \u2705'.repeat(this.characterCharms[id].count || 1);
+            const cch = this.characterCharms[id];
+            if (cch) {
+              child.attributes.label += ' \u2705'.repeat(cch);
             }
             child.attributes.shape = REAL_SHAPE;
           }
@@ -170,9 +172,14 @@ class Builder {
         this.root.nodes[charm.id] = node;
         node.attributes.id = charm.id;
         node.attributes.tooltip = `id: ${charm.id}`;
+        if (charm.type === 'generic') {
+          node.attributes.tooltip += `\nvariant: ${this.select}`;
+        }
         node.attributes.label = Builder.makeLabel(charm);
-        if (this.characterCharms[charm.id]) {
-          node.attributes.label += ' \u2705'.repeat(this.characterCharms[charm.id].count || 1);
+        const cchid = charm.type === 'generic' ? `${charm.id}.${this.select}` : charm.id;
+        const cch = this.characterCharms[cchid];
+        if (cch) {
+          node.attributes.label += ' \u2705'.repeat(cch);
         }
       }
     }
@@ -370,10 +377,10 @@ class Builder {
   }
 }
 
-export default function makeGv (charms, options) {
+export default function makeGv (charms, select, options) {
   options ||= {};
   options.character ||= [];
-  const builder = new Builder(charms, options);
+  const builder = new Builder(charms, select, options);
   builder.doNodes();
   builder.doEdges();
   return builder.render();

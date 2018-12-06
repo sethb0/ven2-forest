@@ -129,15 +129,15 @@ export function disableView () {
 }
 
 let topdown = false;
-// let pack = false;
+let pack = false;
 
 function setOptions (item, win) {
   if (item.label === 'Top-Down Layout') {
     topdown = item.checked;
-  // } else if (item.label === 'Alternate Packing') {
-  //   pack = item.checked;
+  } else if (item.label === 'Alternate Packing') {
+    pack = item.checked;
   }
-  win.webContents.send('setOptions', { topdown, pack: false });
+  win.webContents.send('setOptions', { topdown, pack });
 }
 
 function redisplay (item, win) {

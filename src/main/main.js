@@ -2,7 +2,7 @@
 import { app, dialog, ipcMain, protocol, BrowserWindow } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 import { load as loadYaml } from '@sethb0/yaml-utils';
-import { basename, dirname } from 'path';
+import { basename } from 'path';
 
 import { connectAtStartup, disconnect, initIpc } from './db';
 import { installMenu, enableCloseCharacter, disableCloseCharacter, enableView, disableView }
@@ -149,6 +149,7 @@ function createWindow () {
     }
     disableView();
     disableCloseCharacter();
+    title = '';
   });
 }
 
@@ -182,16 +183,11 @@ async function doOpenCharacter (p) {
     return;
   }
   app.addRecentDocument(p);
-  let dir = dirname(p);
-  const home = process.env.HOME;
-  if (home && dir.startsWith(`${home}/`)) {
-    dir = `~${dir.slice(home.length)}`;
-  }
   if (!win) {
     createWindow();
   }
   win.setRepresentedFilename(p);
-  title = `${basename(p)} \u2014 ${dir}`;
+  title = basename(p);
   win.webContents.send('setCharacter', { data, title });
   enableCloseCharacter();
 }

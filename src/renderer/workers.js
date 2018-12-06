@@ -100,7 +100,11 @@ function processCharacterCharmBatch (x) {
     return [].concat(...x.map(processCharacterCharmBatch));
   }
   if (x.id) {
-    return [{ id: x.id, variant: x.variant }];
+    return [{
+      id: x.id,
+      variant: x.variant,
+      count: x.diminished ?? (x.augmented || x.experienced || x.bonus || x.creation || 0),
+    }];
   }
   if (x.name) {
     // we don't currently look up Charms by name

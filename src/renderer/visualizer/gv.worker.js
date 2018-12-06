@@ -28,9 +28,13 @@ onmessage = (evt) => {
     default:
       title = `${type} ${group}${group.includes(' Charms') ? '' : ' Charms'}`;
     }
+    let g = group;
+    if (g.includes(' ')) {
+      g = g.replace(/ (\S?)/gu, (match, p1) => p1.toUpperCase());
+    }
     try {
       postMessage({
-        type, group, title, gv: makeGv(charms, { title, ...options || {} }),
+        type, group, title, gv: makeGv(charms, g, { title, ...options || {} }),
       });
     } catch (err) {
       console.error(err); // eslint-disable-line no-console

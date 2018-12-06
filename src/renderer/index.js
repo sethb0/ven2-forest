@@ -10,7 +10,7 @@ import { initWorkers } from './workers';
 
 ipcRenderer.on('setCharacter', (evt, { title }) => {
   if (title) {
-    document.title = title;
+    document.title = `${title} \u2014 Forest`;
   } else {
     document.title = 'Forest';
   }
