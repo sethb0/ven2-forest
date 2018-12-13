@@ -88,10 +88,6 @@ export async function loadWithProxies (type, group, options) {
   if (!clientPromise) {
     throw new Error('Database not connected');
   }
-  if (!options && typeof group === 'object') {
-    options = group;
-    group = null;
-  }
   if (!options) {
     options = {};
   }
@@ -107,10 +103,6 @@ export async function loadWithProxies (type, group, options) {
 export async function loadWithProxiesAndGenerics (type, group, options) {
   if (!clientPromise) {
     throw new Error('Database not connected');
-  }
-  if (!options && typeof group === 'object') {
-    options = group;
-    group = null;
   }
   if (!options) {
     options = {};
@@ -172,25 +164,23 @@ export function initIpc (errorHandler) {
   ipcMain.on('refreshCharms', async (evt, { type, group }) => {
     let charms;
     try {
-      charms = await loadWithProxiesAndGenerics(type, group);
+      if (
+        ['Heretical', 'Martial Arts', 'Occult'].includes(group)
+        && ['Alchemical', 'Infernal', 'Lunar'].includes(type)
+      ) {
+        charms = await loadWithProxies(type, group);
+      } else {
+        charms = filterGenerics(await loadWithProxiesAndGenerics(type, group), type, group);
+      }
     } catch (err) {
       errorHandler(err.message);
       return;
     }
-    evt.sender.send(
-      'renderCharms',
-      { type, group, charms: filterGenerics(charms, type, group) }
-    );
+    evt.sender.send('renderCharms', { type, group, charms });
   });
 }
 
 function filterGenerics (charms, type, group) {
-  if (
-    (group === 'Martial Arts' || group === 'Heretical')
-    && (type === 'Alchemical' || type === 'Lunar' || type === 'Infernal')
-  ) {
-    return charms.filter((charm) => charm.type !== 'generic');
-  }
   let g = group;
   if (g.includes(' ')) {
     g = g.replace(/ (\S?)/gu, (match, p1) => p1.toUpperCase());
@@ -216,12 +206,11 @@ function filterGenerics (charms, type, group) {
         out.push(ch);
       } else if (
         !(
-          charm.id === 'Infernal.2ndExcellency'
-          && g === 'EbonDragon'
-        )
-        && !(
-          charm.id === 'Abyssal.RaveningMouthOf'
-          && !['Archery', 'MartialArts', 'Melee', 'Thrown'].includes(g)
+          (charm.id === 'Infernal.2ndExcellency' && g === 'EbonDragon')
+          || (
+            charm.id === 'Abyssal.RaveningMouthOf'
+            && !['Archery', 'MartialArts', 'Melee', 'Thrown'].includes(g)
+          )
         )
       ) {
         out.push({ ...charm, name: renameCharm(charm, group) });
