@@ -204,6 +204,14 @@ class Builder {
               if (p.excellencies) {
                 this.pushSpecialDependency(child, this.getExcellenciesNode(p.excellencies));
               }
+              if (p['other excellencies']) {
+                for (const v of p['other excellencies']) {
+                  this.pushSpecialDependency(
+                    child,
+                    this.getExcellenciesNode(v.threshold, v.variant)
+                  );
+                }
+              }
               if (p.groups?.length) {
                 const l = p.groups.length;
                 for (let i = 0; i < l; i += 1) {
@@ -227,6 +235,14 @@ class Builder {
           if (p.excellencies) {
             this.pushSpecialDependency(node, this.getExcellenciesNode(p.excellencies));
           }
+          if (p['other excellencies']) {
+            for (const v of p['other excellencies']) {
+              this.pushSpecialDependency(
+                node,
+                this.getExcellenciesNode(v.threshold, v.variant)
+              );
+            }
+          }
           if (p.groups?.length) {
             const l = p.groups.length;
             for (let i = 0; i < l; i += 1) {
@@ -243,15 +259,18 @@ class Builder {
     }
   }
 
-  getExcellenciesNode (excNum) {
-    const excId = `exc (${excNum})`;
+  getExcellenciesNode (excNum, trait = '') {
+    if (trait) {
+      trait += ' ';
+    }
+    const excId = `exc ${trait}(${excNum})`;
     let node = this.root.nodes[excId];
     if (!node) {
       node = this.root.nodes[excId] = new Node(`n${this.lastTag += 1}`);
       node.attributes.id = excId;
-      const excText = `${excNum} Excellencies`;
-      node.attributes.label = `Any ${excNum === 1 ? 'Excellency' : excText}`;
-      node.attributes.tooltip = `excellencies: ${excNum}`;
+      const excText = excNum === 1 ? '' : `${excNum} `;
+      node.attributes.label = `Any ${excText}${trait}Excellenc${excNum === 1 ? 'y' : 'ies'}`;
+      node.attributes.tooltip = `${trait}excellencies: ${excNum}`;
       node.attributes.shape = DUMMY_SHAPE;
     }
     return node;

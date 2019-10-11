@@ -17,6 +17,9 @@
   "bugs": {
     "url": "https://github.com/sethb0/ven2-forest/issues"
   },
+  "os": [
+    "darwin"
+  ],
   "scripts": {
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
